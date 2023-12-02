@@ -10,7 +10,12 @@ def extract_digits(text: str):
             digits += char
     return digits
 
-def replace_first_and_last_written_numbers(text: str):
+def get_possible_substrings(text, i, reverse=False):
+    if reverse:
+        return [text[i-3+1:i+1], text[i-4+1:i+1], text[i-5+1:i+1]]    
+    return [text[i:i+3], text[i:i+4], text[i:i+5]]
+
+def replace_written_number(text: str, reverse=False):
     digit_replacements = {
         "one": "1",
         "two": "2",
@@ -22,43 +27,23 @@ def replace_first_and_last_written_numbers(text: str):
         "eight": "8",
         "nine": "9"
     }
-    # replace first word digit
-    updated_text = text
-    for i in range(len(text)):
-        to_replace = None
-        substring = text[i:i+3]
-        if substring in digit_replacements:
-            to_replace = substring
-        substring = text[i:i+4]
-        if substring in digit_replacements:
-            to_replace = substring
-        substring = text[i:i+5]
-        if substring in digit_replacements:
-            to_replace = substring
-        
-        if to_replace:
-            updated_text = text.replace(to_replace, digit_replacements[to_replace])
-            break
-     
 
-    # replace last word digit
-    final_text = updated_text
-    for i in range(len(updated_text)-1, -1, -1):
-        to_replace = None
-        substring = updated_text[i-3+1:i+1]
-        if substring in digit_replacements:
-            to_replace = substring
-        substring = updated_text[i-4+1:i+1]
-        if substring in digit_replacements:
-            to_replace = substring
-        substring = updated_text[i-5+1:i+1]
-        if substring in digit_replacements:
-            to_replace = substring
-            
-        if to_replace:
-            final_text = updated_text.replace(to_replace, digit_replacements[to_replace])
-            break
-    return final_text
+    if reverse:
+        indices = range(len(text)-1, -1, -1)
+    else:
+        indices = range(len(text))
+
+    for i in indices:
+        possible_substrings = get_possible_substrings(text, i, reverse=reverse)
+        for substring in possible_substrings:
+            if substring in digit_replacements:
+                return text.replace(substring, digit_replacements[substring])
+    return text
+
+def replace_first_and_last_written_numbers(text: str):
+    text = replace_written_number(text, reverse=False)
+    text = replace_written_number(text, reverse=True)
+    return text
 
 def get_calibration_value(text: str, replace_digits: bool = False):
     if replace_digits:
